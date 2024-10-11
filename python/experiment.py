@@ -40,13 +40,21 @@ class Experiment:
         X -- np.ndarray(dtype=np.float64, ndim=2), the full matrix of
              neural data from this experiment, of shape [neurons x timesteps].
 
+        X_SVM -- np.ndarray(dtype=np.float64, ndim=3), the matrix of neural data
+                 organized to be used by the SVM. Of the shape [neurons x bouts]
+        
+        X_SVM_SESSIONLABELS -- np.ndarray(dtype=np.int16, ndim=1), the labels
+                               for every bout of X_SVM. Shape [bouts]
+        X_SVM_ANIMALLABELS -- (similar to above)
+        X_SVM_SITELABELS -- (similar to above)
+
         NOSEX -- vector of the mouse nose position through experiment
         NOSEY -- (see above)
         TAILX -- (see above)
         TAILY -- (see above)
 
-        SESSIONLABELS -- session labels that index X, position vectors
-                         (noseX, noseY, etc...)
+        X_SESSIONLABELS -- session labels that index X, position vectors
+                           (noseX, noseY, etc...)
 
         """
         
@@ -55,7 +63,23 @@ class Experiment:
         # set the name and path from input
         self.name = name
         self.path = path
-
+        
+        # initialize all the other local variables
+        self.sessionKeyPath = None
+        self.roiPath = None
+        self.sessions = None
+        self.gatheredDataPath = None
+        self.correctedCellRegisterPath = None
+        self.X = None
+        self.X_svm = None
+        self.sessionLabels = None
+        self.animalLabels = None
+        self.siteLabels = None
+        self.noseX = None
+        self.noseY = None
+        self.tailX = None
+        self.tailY = None
+    
         # get the sessionkey path, roipath
         mouse = re.search("MouseS\d{2,3}", self.path).group(0)
         date  = re.search("20\d{6}", self.path).group(0)
@@ -129,6 +153,97 @@ class Experiment:
             OUTPUTS
 
             returns nothing. generates deeplabcut files.
+
+            """
+
+        def runMotionCorrection(self):
+            """
+            opens MATLAB and runs the motion correction
+            script on this experiment path. (can do this
+            using the matlab.engine python package)
+
+            INPUTS
+
+            self -- the instance of Experiment
+
+            OUTPUTS
+
+            returns nothing. runs motion correction.
+            
+            """
+
+        def identifyCorrectedCellRegistration(self):
+            """
+            method to be run AFTER having corrected the
+            motion correction in MATLAB. This method
+            will then look into the experiment path
+            to find the corrected .mat file.
+
+            INPUTS
+
+            self -- the instance of Experiment
+
+            OUTPUTS
+
+            returns nothing. Sets self.correctedCellRegisterPath.
+            
+            """
+        
+        def connectBehaviorAndNeuralData(self):
+            """
+            opens MATLAB and runs the scripts to
+            connect the behavioral and neural data.
+
+            INPUTS
+
+            self -- the instance of Experiment
+
+            OUTPUTS
+
+            returns nothing. runs connect scripts.
+
+            """
+
+        def getX_svm(self):
+            """
+            opens MATLAB and runs a script there
+            that unpacks the gatheredData.mat file
+            to get the X_svm, sessionLabels, siteLabels,
+            and animalLabels.
+
+            INPUTS
+
+            self -- the instance of Experiment
+
+            OUTPUTS
+
+            returns nothing. sets the following variables:
+                
+                X_svm : np.ndarray(dtype=np.float64,ndim=2),
+                        of the shape [neurons x bouts]
+                X_svm_sessionLabels : np.ndarray(dtype=np.int16, ndim=1),
+                                of the shape [bouts]
+                X_svm_siteLabels    : (same as sessionLabels)
+                X_svm_animalLabels  : (same as sessionLabels)
+
+            """
+
+        def runSVM(self):
+            """
+            runs animal and site SVMs.
+
+            INPUTS
+
+            self -- the instance of Experiment. Will mostly make
+                    use of the following variables:
+                X_svm
+                X_svm_sessionLabels
+                X_svm_siteLabels
+                X_svm_animalLabels
+
+            OUTPUTS
+
+            returns nothing. generates figures and produces text in console.
 
             """
 
